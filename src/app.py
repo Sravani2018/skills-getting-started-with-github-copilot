@@ -39,6 +39,43 @@ activities = {
         "max_participants": 30,
         "participants": ["john@mergington.edu", "olivia@mergington.edu"]
     }
+    ,
+    "Basketball Team": {
+        "description": "Competitive basketball team practicing drills and playing matches",
+        "schedule": "Tuesdays and Thursdays, 5:00 PM - 7:00 PM",
+        "max_participants": 15,
+        "participants": ["noah@mergington.edu", "liam@mergington.edu"]
+    },
+    "Swimming Club": {
+        "description": "Swim training and lifeguard skills",
+        "schedule": "Wednesdays, 4:00 PM - 5:30 PM",
+        "max_participants": 20,
+        "participants": ["mia@mergington.edu"]
+    },
+    "Art Club": {
+        "description": "Explore drawing, painting, and mixed media projects",
+        "schedule": "Fridays, 3:30 PM - 5:00 PM",
+        "max_participants": 18,
+        "participants": ["ava@mergington.edu", "charlotte@mergington.edu"]
+    },
+    "Drama Club": {
+        "description": "Theatre production, acting workshops, and school plays",
+        "schedule": "Mondays and Wednesdays, 4:00 PM - 6:00 PM",
+        "max_participants": 25,
+        "participants": ["amelia@mergington.edu"]
+    },
+    "Science Olympiad": {
+        "description": "Team-based science competitions and hands-on challenges",
+        "schedule": "Thursdays, 3:30 PM - 5:00 PM",
+        "max_participants": 20,
+        "participants": ["elijah@mergington.edu", "logan@mergington.edu"]
+    },
+    "Debate Club": {
+        "description": "Practice public speaking, argumentation, and competitive debates",
+        "schedule": "Tuesdays, 3:30 PM - 4:30 PM",
+        "max_participants": 16,
+        "participants": ["sophia@mergington.edu"]
+    }
 }
 
 
@@ -55,6 +92,12 @@ def get_activities():
 @app.post("/activities/{activity_name}/signup")
 def signup_for_activity(activity_name: str, email: str):
     """Sign up a student for an activity"""
+
+    if not email or not email.strip():
+        raise HTTPException(status_code=400, detail="Email is required")
+    
+    normalized_email = email.strip().lower()
+
     # Validate activity exists
     if activity_name not in activities:
         raise HTTPException(status_code=404, detail="Activity not found")
@@ -62,6 +105,12 @@ def signup_for_activity(activity_name: str, email: str):
     # Get the specific activity
     activity = activities[activity_name]
 
+    if normalized_email in activity["participants"]:
+        raise HTTPException(status_code=400, detail="Student already signed up for an activity")
+    
+    if len(activity['participants']) >= activity['max_participants']:
+        raise HTTPException(status_code=400, detail="Activity is full")
+
     # Add student
-    activity["participants"].append(email)
-    return {"message": f"Signed up {email} for {activity_name}"}
+    activity["participants"].append(normalized_email)
+    return {"message": f"Signed up {normalized_email} for {activity_name}"}
