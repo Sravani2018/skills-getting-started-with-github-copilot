@@ -100,16 +100,16 @@ def signup_for_activity(activity_name: str, email: str):
 
     # Validate activity exists
     if activity_name not in activities:
-        raise HTTPException(status_code=404, detail="Activity not found")
+        raise HTTPException(status_code=404, detail=f"no such activity as {activity_name}")
 
     # Get the specific activity
     activity = activities[activity_name]
 
     if normalized_email in activity["participants"]:
-        raise HTTPException(status_code=400, detail="Student already signed up for an activity")
+        raise HTTPException(status_code=400, detail=f"Student already signed up for {activity_name}")
 
     if len(activity['participants']) >= activity['max_participants']:
-        raise HTTPException(status_code=400, detail="Activity is full")
+        raise HTTPException(status_code=400, detail=f"Activity {activity_name} is full")
 
     # Add student
     activity["participants"].append(normalized_email)
@@ -120,13 +120,13 @@ def signup_for_activity(activity_name: str, email: str):
 def unregister_participant(activity_name: str, email: str):
     """Remove a participant from an activity."""
     if activity_name not in activities:
-        raise HTTPException(status_code=404, detail="Activity not found")
+        raise HTTPException(status_code=404, detail=f"no such activity as {activity_name}")
 
     normalized_email = email.strip().lower()
     activity = activities[activity_name]
 
     if normalized_email not in activity["participants"]:
-        raise HTTPException(status_code=404, detail="Participant not found")
+        raise HTTPException(status_code=404, detail=f"Participant {normalized_email} not found in {activity_name}")
 
     activity["participants"].remove(normalized_email)
     return {"message": f"Removed {normalized_email} from {activity_name}"}
